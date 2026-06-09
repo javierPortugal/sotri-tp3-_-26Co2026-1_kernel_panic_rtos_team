@@ -582,3 +582,6 @@ java.lang.Exception: Resource '/sotri-tp3_02-application' does not exist.
 
 !ENTRY org.eclipse.cdt.core 1 0 2026-06-08 22:08:25.370
 !MESSAGE Indexed 'sotri-tp3_01-application' (40 sources, 135 headers) in 2.58 sec: 15,954 declarations; 78,898 references; 1 unresolved inclusions; 202 syntax errors; 239 unresolved names (0.25%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2026-06-08 22:29:54.216
+!MESSAGE Indexed 'sotri-tp3_02-application' (40 sources, 135 headers) in 2.34 sec: 15,947 declarations; 78,910 references; 1 unresolved inclusions; 202 syntax errors; 239 unresolved names (0.25%)

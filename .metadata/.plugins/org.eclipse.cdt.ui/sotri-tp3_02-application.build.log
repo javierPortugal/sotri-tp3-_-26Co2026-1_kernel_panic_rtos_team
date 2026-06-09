@@ -1,4 +1,4 @@
-22:05:09 **** Incremental Build of configuration Debug for project sotri-tp3_02-application ****
+22:30:58 **** Incremental Build of configuration Debug for project sotri-tp3_02-application ****
 make -j12 all 
 arm-none-eabi-size  sotri-tp3_02-application.elf 
    text	   data	    bss	    dec	    hex	filename
@@ -6,5 +6,5 @@ arm-none-eabi-size  sotri-tp3_02-application.elf
 Finished building: default.size.stdout
  
 
-22:05:10 Build Finished. 0 errors, 0 warnings. (took 483ms)
+22:30:59 Build Finished. 0 errors, 0 warnings. (took 477ms)
 
