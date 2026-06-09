@@ -82,7 +82,7 @@ void task_entry_a(void *parameters)
 	 * cause Task A to start executing immediately, allowing it to put the
 	 * semaphores into the initial state required by the application, and then
 	 * regain the same priority of other tasks. */
-	kPrioritySet(h_task_entry_a, (uxTaskPriorityGet(h_task_entry_b)));
+	vTaskPrioritySet(h_task_entry_a, (uxTaskPriorityGet(h_task_entry_b)));
 
 
 	/* As per most tasks, this task is implemented in an infinite loop. */
