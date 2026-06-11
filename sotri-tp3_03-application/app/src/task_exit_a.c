@@ -76,36 +76,76 @@ void task_exit_a(void *parameters)
 	for (;;)
 	{
 		/* Update Task Counter */
-		g_task_exit_a_cnt++;
+//		g_task_exit_a_cnt++;
 
-		xSemaphoreTake(h_exit_a_bin_sem, portMAX_DELAY);
-		{
+//		xSemaphoreTake(h_exit_a_bin_sem, portMAX_DELAY);
+//		{
 
-			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-			{
-				if(g_tasks_cnt > 0) {
-					LOGGER_INFO("Vehiculo saliendo de A");
-					g_tasks_cnt--;
-				}
+//			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+//			{
+//				if(g_tasks_cnt > 0) {
+//					LOGGER_INFO("Vehiculo saliendo de A");
+//					g_tasks_cnt--;
+//				}
 				// se libero el paso, pongo mi semaforo en verde, si es
 				// que esta en rojo
-				if(semaforo_a == 0) {
-					semaforo_a = 1;
-					LOGGER_INFO("Semaforo A en verde");
-				}
+//				if(semaforo_a == 0) {
+//					semaforo_a = 1;
+//					LOGGER_INFO("Semaforo A en verde");
+//				}
 				// si ya no hay mas transito por la via del lado a
 				// entonces libero semaforo_b
-				if(g_tasks_cnt == 0) {
-					semaforo_b = 1;
-					LOGGER_INFO("Transito liberado. Semaforo B en verde");
-				}
-			}
-			xSemaphoreGive(h_mutex_mut_sem);
+//				if(g_tasks_cnt == 0) {
+//					semaforo_b = 1;
+//					LOGGER_INFO("Transito liberado. Semaforo B en verde");
+//				}
+//			}
+//			xSemaphoreGive(h_mutex_mut_sem);
 			/// despues de tomar el semaforo
-		}
+//		}
     	/* Print out: Wait 2500mS */
-		LOGGER_INFO(p_task_exit_a_wait_2500mS);
-		vTaskDelay(TASK_EXIT_A_DEL_MAX);
+//		LOGGER_INFO(p_task_exit_a_wait_2500mS);
+//		vTaskDelay(TASK_EXIT_A_DEL_MAX);
+
+
+		// 1. Bloqueo eficiente: Esperar la señal física de que un auto llegó al sensor de salida A
+				xSemaphoreTake(h_exit_a_bin_sem, portMAX_DELAY);
+
+				/* Update Task Counter */
+				g_task_exit_a_cnt++;
+
+				// 2. Proteger el acceso al contador y semáforos globales bajo el Mutex
+				xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+				{
+					if (g_tasks_cnt > 0)
+					{
+						g_tasks_cnt--;
+						LOGGER_INFO("Vehiculo saliendo de A. Total en cruce: %lu", g_tasks_cnt);
+
+						// CAMBIO LÓGICO CRÍTICO: Alternancia segura y excluyente
+						if (g_tasks_cnt == 0)
+						{
+							// Si el cruce quedó vacío, cerramos el paso de A y abrimos la vía opuesta B
+							semaforo_a = 0;
+							semaforo_b = 1;
+							LOGGER_INFO("Cruce vacio. Semaforo A -> ROJO, Semaforo B -> VERDE");
+						}
+						else if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_a == 0)
+						{
+							// Si aún quedan autos de la ráfaga A por salir pero hay espacio libre,
+							// mantenemos o reabrimos el semáforo A en verde.
+							semaforo_a = 1;
+							LOGGER_INFO("Semaforo A reabierto en VERDE");
+						}
+					}
+				}
+				xSemaphoreGive(h_mutex_mut_sem);
+
+				/* SE REMOVIÓ EL vTaskDelay(TASK_EXIT_A_DEL_MAX) DE 2500mS */
+				// Ahora la tarea se desbloquea instantáneamente para recibir el siguiente auto.
+
+
+
 	}
 }
 
