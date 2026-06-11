@@ -75,33 +75,67 @@ void task_gate_c(void *parameters)
 	/* Take the semaphore once to start with so the semaphore is empty before the
      * infinite loop is entered.  The semaphore was created before the scheduler
 	 * was started so before this task ran for the first time.*/
-	xSemaphoreTake(h_open_c_bin_sem, (portTickType) 0);	// h_open_a_bin_sem = Semaphore(0)
-	xSemaphoreTake(h_open_d_bin_sem, (portTickType) 0);	// h_open_b_bin_sem = Semaphore(0)
+	/*xSemaphoreTake(h_open_c_bin_sem, (portTickType) 0);	// h_open_a_bin_sem = Semaphore(0)  MODIFICADO*/
+	/*xSemaphoreTake(h_open_d_bin_sem, (portTickType) 0);	// h_open_b_bin_sem = Semaphore(0)  MODIFICADO */
 
 	/* Setting the priority of Task C above the priority of other tasks will
 	 * cause Task C to start executing immediately, allowing it to put the
 	 * semaphores into the initial state required by the application, and then
 	 * regain the same priority of other tasks. */
-	vTaskPrioritySet(h_task_gate_c, (uxTaskPriorityGet(h_task_gate_d)));
+	/*vTaskPrioritySet(h_task_gate_c, (uxTaskPriorityGet(h_task_gate_d))); MODIFICADO */
 
 	/* As per most tasks, this task is implemented in an infinite loop. */
 	for (;;)
 	{
 		/* Update Task Counter */
-		g_task_gate_c_cnt++;
-		xSemaphoreTake(h_open_c_bin_sem, portMAX_DELAY);
-		{
-			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-		}
+//		g_task_gate_c_cnt++;
+//		xSemaphoreTake(h_open_c_bin_sem, portMAX_DELAY);
+//		{
+//			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+//		}
 
     	/* Print out: Wait 2500mS */
-		LOGGER_INFO(p_task_gate_c_wait_2500mS);
-		vTaskDelay(TASK_GATE_C_DEL_MAX);
+//		LOGGER_INFO(p_task_gate_c_wait_2500mS);
+//		vTaskDelay(TASK_GATE_C_DEL_MAX);
 
-		xSemaphoreTake(h_close_c_bin_sem, portMAX_DELAY);
-		{
-			xSemaphoreGive(h_mutex_mut_sem);
-		}
+//		xSemaphoreTake(h_close_c_bin_sem, portMAX_DELAY);
+//		{
+//			xSemaphoreGive(h_mutex_mut_sem);
+//		}
+
+
+
+	    // 1. Esperar el estímulo de apertura de test
+	    if (xSemaphoreTake(h_open_c_bin_sem, portMAX_DELAY) == pdPASS)
+	    {
+	        g_task_gate_c_cnt++;
+	        LOGGER_INFO(" [Gate C] Petición de apertura recibida. Esperando Mutex...");
+
+	        // 2. Intentar tomar el Mutex de la esclusa
+	        if (xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY) == pdPASS)
+	        {
+	            // --- ENTRADA A LA SECCIÓN CRÍTICA ---
+	            LOGGER_INFO(" [Gate C] ==> Esclusa ADQUIRIDA - Esperando 2500ms");
+	            vTaskDelay(TASK_GATE_C_DEL_MAX);
+
+	            // 3. Esperar el estímulo de cierre MIENTRAS se retiene el Mutex
+	            if (xSemaphoreTake(h_close_c_bin_sem, portMAX_DELAY) == pdPASS)
+	            {
+	                LOGGER_INFO(" [Gate C] Confirmación de cierre recibida.");
+	            }
+
+	            // 4. Liberar el Mutex OBLIGATORIAMENTE
+	            xSemaphoreGive(h_mutex_mut_sem);
+	            LOGGER_INFO(" [Gate C] Puerta cerrada. Esclusa liberada.");
+	            // --- FIN DE LA SECCIÓN CRÍTICA ---
+	        }
+	    }
+
+
+
+
+
+
 	}
 }
 
