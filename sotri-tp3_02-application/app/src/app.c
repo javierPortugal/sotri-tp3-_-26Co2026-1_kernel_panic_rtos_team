@@ -62,7 +62,7 @@
 
 /********************** internal data definition *****************************/
 const char *p_app	= "RTOS - Event-Triggered Systems (ETS)";
-const char *p_app_	= "sotri-tp3_01-application: Producer-Consumer";
+const char *p_app_	= "sotri-tp3_02-application: Readers-Writers";
 const char *p_app__	= "(Source => CESE - Sistemas Operativos de Tiempo Real)";
 
 /* Source => The Little Book of Semaphores, Allen B. Downey, Version 2.2.1:

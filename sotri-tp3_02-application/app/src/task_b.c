@@ -76,35 +76,71 @@ void task_b(void *parameters)
 	/* As per most tasks, this task is implemented in an infinite loop. */
 	for (;;)
     {
-		/* Update Task Counter */
+//		/* Update Task Counter */
+//		g_task_b_cnt++;
+//
+//		xSemaphoreTake(h_turnstile_mutex, portMAX_DELAY);
+//		xSemaphoreGive(h_turnstile_mutex);
+//
+//		/// first reader in locks the room
+//		xSemaphoreTake(h_critical_section_mutex, portMAX_DELAY);
+//		{
+//			g_reader_cnt++;
+//			if(g_reader_cnt == 1) {
+//				xSemaphoreTake(h_room_empty_binary_semaphore, portMAX_DELAY);
+//			}
+//		}
+//		xSemaphoreGive(h_critical_section_mutex);
+//
+//		/* Print out: Wait 2500mS. This should process the event */
+//		LOGGER_INFO("%s Reading -- critical section for readers", pcTaskGetName(NULL));
+//
+//		xSemaphoreTake(h_critical_section_mutex, portMAX_DELAY);
+//		{
+//			g_reader_cnt--;
+//			if(0 == g_reader_cnt) {
+//				xSemaphoreGive(h_room_empty_binary_semaphore);
+//			}
+//		}
+//		xSemaphoreGive(h_critical_section_mutex);
+//		LOGGER_INFO("   ==> Task %s - Wait:   %lumS", pcTaskGetName(NULL), TASK_B_DEL_MAX);
+//		vTaskDelay(TASK_B_DEL_MAX);
+
 		g_task_b_cnt++;
 
+		// Pasa por el molinete (los escritores pueden bloquear aquí)
 		xSemaphoreTake(h_turnstile_mutex, portMAX_DELAY);
-		xSemaphoreGive(h_turnstile_mutex);
-
-		/// first reader in locks the room
+		// Protege el contador g_reader_cnt
 		xSemaphoreTake(h_critical_section_mutex, portMAX_DELAY);
 		{
-			g_reader_cnt++;
-			if(g_reader_cnt == 1) {
-				xSemaphoreTake(h_room_empty_binary_semaphore, portMAX_DELAY);
-			}
+		    g_reader_cnt++;
+		    // Si es el primer lector, bloquea la sala para los escritores
+		    if(g_reader_cnt == 1) {
+		        xSemaphoreTake(h_room_empty_binary_semaphore, portMAX_DELAY);
+		    }
 		}
 		xSemaphoreGive(h_critical_section_mutex);
+		xSemaphoreGive(h_turnstile_mutex); // Libera el molinete para el siguiente
 
-		/* Print out: Wait 2500mS. This should process the event */
+		/* --- INICIO SECCIÓN CRÍTICA --- */
 		LOGGER_INFO("%s Reading -- critical section for readers", pcTaskGetName(NULL));
+		/* --- FIN SECCIÓN CRÍTICA --- */
 
+		// Salida de la sección crítica
 		xSemaphoreTake(h_critical_section_mutex, portMAX_DELAY);
 		{
-			g_reader_cnt--;
-			if(0 == g_reader_cnt) {
-				xSemaphoreGive(h_room_empty_binary_semaphore);
-			}
+		    g_reader_cnt--;
+		    // Si es el último lector, avisa que la sala está vacía
+		    if(g_reader_cnt == 0) {
+		        xSemaphoreGive(h_room_empty_binary_semaphore);
+		    }
 		}
 		xSemaphoreGive(h_critical_section_mutex);
+
 		LOGGER_INFO("   ==> Task %s - Wait:   %lumS", pcTaskGetName(NULL), TASK_B_DEL_MAX);
 		vTaskDelay(TASK_B_DEL_MAX);
+
+
 	}
 }
 
