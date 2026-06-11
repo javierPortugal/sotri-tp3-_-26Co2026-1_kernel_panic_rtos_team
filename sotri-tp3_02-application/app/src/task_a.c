@@ -75,42 +75,24 @@ void task_a(void *parameters)
 	/* As per most tasks, this task is implemented in an infinite loop. */
 	for (;;)
 	{
-//
-//		/* Update Task Counter */
-//		g_task_a_cnt++;
-//
-//		xSemaphoreTake(h_turnstile_mutex, portMAX_DELAY);
-//		{
-//			xSemaphoreTake(h_room_empty_binary_semaphore, portMAX_DELAY);
-//			{
-//		    	/* Print out: Wait 250mS */
-//				LOGGER_INFO("Writing -- critical section for writers");
-//
-//			}
-//		}
-//		xSemaphoreGive(h_turnstile_mutex);
-//		xSemaphoreGive(h_room_empty_binary_semaphore);
-//		LOGGER_INFO(p_task_a_wait_250mS);
-//		vTaskDelay(TASK_A_DEL_MAX);
 
-
+		/* Update Task Counter */
 		g_task_a_cnt++;
 
-		// Bloquea el molinete para que no entren más lectores
 		xSemaphoreTake(h_turnstile_mutex, portMAX_DELAY);
-		// Espera a que la sala esté completamente vacía de lectores
-		xSemaphoreTake(h_room_empty_binary_semaphore, portMAX_DELAY);
+		{
+			xSemaphoreTake(h_room_empty_binary_semaphore, portMAX_DELAY);
+			{
+		    	/* Print out: Wait 250mS */
+				LOGGER_INFO("Writing -- critical section for writers");
 
-		/* --- INICIO SECCIÓN CRÍTICA --- */
-		LOGGER_INFO("Writing -- critical section for writers");
-		/* --- FIN SECCIÓN CRÍTICA --- */
-
-		// Libera en orden inverso (LIFO) para evitar inversión de prioridades
-		xSemaphoreGive(h_room_empty_binary_semaphore);
+			}
+		}
 		xSemaphoreGive(h_turnstile_mutex);
-
+		xSemaphoreGive(h_room_empty_binary_semaphore);
 		LOGGER_INFO(p_task_a_wait_250mS);
 		vTaskDelay(TASK_A_DEL_MAX);
+
 
 
 

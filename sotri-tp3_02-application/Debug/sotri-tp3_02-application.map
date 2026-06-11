@@ -6657,7 +6657,7 @@ LOAD C:/ST/STM32CubeIDE_1.19.0_UBA/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu
  .debug_macro   0x00025109      0x3e0 ./app/src/task_a.o
  .debug_macro   0x000254e9      0x3e0 ./app/src/task_b.o
 
-.debug_line     0x00000000    0x19c42
+.debug_line     0x00000000    0x19c44
  .debug_line    0x00000000      0x8bc ./Core/Src/freertos.o
  .debug_line    0x000008bc      0xcac ./Core/Src/main.o
  .debug_line    0x00001568      0x7df ./Core/Src/stm32f4xx_hal_msp.o
@@ -6684,8 +6684,8 @@ LOAD C:/ST/STM32CubeIDE_1.19.0_UBA/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu
  .debug_line    0x00016424      0xaf8 ./app/src/app_it.o
  .debug_line    0x00016f1c      0xb33 ./app/src/freertos.o
  .debug_line    0x00017a4f      0xad7 ./app/src/logger.o
- .debug_line    0x00018526      0xb7c ./app/src/task_a.o
- .debug_line    0x000190a2      0xba0 ./app/src/task_b.o
+ .debug_line    0x00018526      0xb80 ./app/src/task_a.o
+ .debug_line    0x000190a6      0xb9e ./app/src/task_b.o
 
 .debug_str      0x00000000    0xdad26
  .debug_str     0x00000000    0xdad26 ./Core/Src/freertos.o
