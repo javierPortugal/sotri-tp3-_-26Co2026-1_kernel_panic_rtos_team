@@ -55,7 +55,6 @@
 /* Events to excite tasks */
 typedef enum e_task_test {Error, Entry_A, Entry_B, Exit_A, Exit_B} e_task_test_t;
 
-
 /********************** internal functions declaration ***********************/
 
 /********************** internal data definition *****************************/
@@ -70,8 +69,7 @@ const char *p_task_test_wait_5000mS			= "  <=> Task Test - Wait:   5000mS";
 const char *p_task_test_signal_entry_a		= "  <=> Task Test - Signal: Entry_A  <=>";
 const char *p_task_test_signal_exit_a		= "  <=> Task Test - Signal: Exit_A   <=>";
 
-//#define E_TASK_TEST_X (5)
-#define E_TASK_TEST_X (6)
+#define E_TASK_TEST_X (5)
 
 #if (E_TASK_TEST_X == 0)
 /* Array of events to excite tasks */
@@ -101,23 +99,6 @@ const e_task_test_t e_task_test_array[] = {Entry_A, Entry_A, Entry_A, Entry_A, E
 #if (E_TASK_TEST_X == 5)
 /* Array of events to excite tasks */
 const e_task_test_t e_task_test_array[] = {Entry_A, Entry_A, Entry_A, Entry_A, Entry_A, Exit_A, Exit_A, Exit_A, Exit_A, Exit_A};
-#endif
-
-// added
-
-//#if (E_TASK_TEST_X == 6)
-/* Array of events to excite tasks */
-//const e_task_test_t e_task_test_array[] = {Entry_B, Entry_B, Entry_B, Entry_B, Entry_B, Exit_B, Exit_B, Exit_B, Exit_B, Exit_B};
-//#endif
-#if (E_TASK_TEST_X == 6)
-/* Secuencia de tráfico mixto: llena y vacía el carril A, luego llena y vacía el carril B */
-const e_task_test_t e_task_test_array[] = {
-    Entry_A, Entry_A, Entry_A,   // Llegan 3 autos al carril A
-    Exit_A,  Exit_A,  Exit_A,    // Salen los 3 autos de A (Abre semáforo B)
-
-    Entry_B, Entry_B, Entry_B,   // Llegan 3 autos al carril B
-    Exit_B,  Exit_B,  Exit_B     // Salen los 3 autos de B (Abre semáforo A)
-};
 #endif
 
 /********************** external data declaration *****************************/

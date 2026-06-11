@@ -76,37 +76,69 @@ void task_exit_b(void *parameters)
 	for (;;)
 	{
 		/* Update Task Counter */
-		g_task_exit_b_cnt++;
+//		g_task_exit_b_cnt++;
 
-		xSemaphoreTake(h_exit_b_bin_sem, portMAX_DELAY);
-		{
+//		xSemaphoreTake(h_exit_b_bin_sem, portMAX_DELAY);
+//		{
 
-			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-			{
-				if(g_tasks_cnt > 0) {
-					LOGGER_INFO("Vehiculo saliendo de B");
-					g_tasks_cnt--;
-				}
+//			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+//			{
+//				if(g_tasks_cnt > 0) {
+//					LOGGER_INFO("Vehiculo saliendo de B");
+//					g_tasks_cnt--;
+//				}
 				// se libero el paso, pongo mi semaforo en verde, si es
 				// que esta en rojo
-				if(semaforo_b == 0) {
-					semaforo_b = 1;
-					LOGGER_INFO("Semaforo B en verde");
-				}
+//				if(semaforo_b == 0) {
+//					semaforo_b = 1;
+//					LOGGER_INFO("Semaforo B en verde");
+//				}
 				// si ya no hay mas transito por la via del lado a
 				// entonces libero semaforo opuesto
-				if(g_tasks_cnt == 0) {
-					semaforo_a = 1;
-					LOGGER_INFO("Transito liberado. Semaforo A en verde");
-				}
+//				if(g_tasks_cnt == 0) {
+//					semaforo_a = 1;
+//					LOGGER_INFO("Transito liberado. Semaforo A en verde");
+//				}
 
-			}
-			xSemaphoreGive(h_mutex_mut_sem);
-		}
+//			}
+//			xSemaphoreGive(h_mutex_mut_sem);
+//		}
     	/* Print out: Wait 2500mS */
-		LOGGER_INFO(p_task_exit_b_wait_2500mS);
-		vTaskDelay(TASK_EXIT_B_DEL_MAX);
+//		LOGGER_INFO(p_task_exit_b_wait_2500mS);
+//		vTaskDelay(TASK_EXIT_B_DEL_MAX);
+
+
+		xSemaphoreTake(h_exit_b_bin_sem, portMAX_DELAY);
+		    g_task_exit_b_cnt++;
+
+		    xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+		    {
+		        if (g_tasks_cnt > 0)
+		        {
+		            g_tasks_cnt--;
+		            LOGGER_INFO("Vehiculo saliendo de B. Total en cruce: %lu", g_tasks_cnt);
+
+		            if (g_tasks_cnt == 0)
+		            {
+		                semaforo_b = 0; // Cerramos B de manera explícita
+		                semaforo_a = 1; // Abrimos A de manera excluyente
+		                LOGGER_INFO("Cruce vacio. Semaforo B -> ROJO, Semaforo A -> VERDE");
+		            }
+		            else if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_b == 0)
+		            {
+		                semaforo_b = 1;
+		                LOGGER_INFO("Semaforo B reabierto en VERDE");
+		            }
+		        }
+		    }
+		    xSemaphoreGive(h_mutex_mut_sem);
+
+
+
+
 	}
+
+
 }
 
 /********************** end of file ******************************************/
