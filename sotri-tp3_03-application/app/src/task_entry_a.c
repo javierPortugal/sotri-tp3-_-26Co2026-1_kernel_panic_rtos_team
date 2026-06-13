@@ -116,54 +116,35 @@ void task_entry_a(void *parameters)
 //		vTaskDelay(TASK_ENTRY_A_DEL_MAX);
 
 
-		// 1. Esperar bloqueado la señal física de que un auto llegó desde task_test
-		xSemaphoreTake(h_entry_a_bin_sem, portMAX_DELAY);
-
-		/* Update Task Counter */
-		g_task_entry_a_cnt++;
-
-		uint8_t vehiculo_cruzo = 0;
-
-		// 2. BUCLE DE RETENCIÓN: El auto espera aquí si el semáforo está en rojo o el cruce está lleno
-		while (!vehiculo_cruzo)
-		{
-			// Tomamos el mutex para evaluar y modificar las variables globales de forma segura
-			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-			{
-				if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_a == 1)
+		// Tomamos el mutex para evaluar y modificar las variables globales de forma segura
+				xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
 				{
-					g_tasks_cnt++;
-					LOGGER_INFO("Vehiculo Circulando por A. Total en cruce: %lu", g_tasks_cnt);
+					if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_a == 1)
+					{
+						g_tasks_cnt++;
+						LOGGER_INFO("Vehiculo Circulando por A. Total en cruce: %lu", g_tasks_cnt);
 
-					// Si alcanzamos el límite máximo, cerramos nuestro semáforo
-					if (g_tasks_cnt == G_TASKS_CNT_MAX) {
-						semaforo_a = 0;
-						LOGGER_INFO("Semaforo A en rojo (Limite maximo alcanzado)");
+						// Si alcanzamos el límite máximo, cerramos nuestro semáforo
+						if (g_tasks_cnt == G_TASKS_CNT_MAX) {
+							semaforo_a = 0;
+							LOGGER_INFO("Semaforo A en rojo (Limite maximo alcanzado)");
+						}
+
+						// Aseguramos la exclusión mutua cerrando el semáforo opuesto si estaba abierto
+						if (semaforo_b == 1) {
+							semaforo_b = 0;
+							LOGGER_INFO("Semaforo B asegurado en rojo");
+						}
+
+						vehiculo_cruzo = 1; // Bandera para romper el bucle while y permitir avanzar
 					}
-
-					// Aseguramos la exclusión mutua cerrando el semáforo opuesto si estaba abierto
-					if (semaforo_b == 1) {
-						semaforo_b = 0;
-						LOGGER_INFO("Semaforo B asegurado en rojo");
-					}
-
-					vehiculo_cruzo = 1; // Bandera para romper el bucle while y permitir avanzar
 				}
-			}
-			xSemaphoreGive(h_mutex_mut_sem);
+				xSemaphoreGive(h_mutex_mut_sem);
 
-			// 3. Alivio de CPU: Si el semáforo está en rojo, cedemos el paso un instante (10ms)
-			// Esto permite que la tarea de salida (task_exit_a) se ejecute, vacíe el cruce y nos desbloquee.
-			if (!vehiculo_cruzo) {
-				vTaskDelay(pdMS_TO_TICKS(10));
-			}
-		}
-
-		/* SE REMOVIÓ EL vTaskDelay(TASK_ENTRY_A_DEL_MAX) DE 2500mS */
-		// Al eliminarlo, la tarea queda lista instantáneamente para procesar el siguiente auto de la ráfaga.
-
-
-
+				// bloquea hasta que el exit le permita dar el siguiente paso
+				if (!vehiculo_cruzo) {
+					xSemaphoreTake(h_go_a_bin_sem, portMAX_DELAY);
+				}
 
 
 
