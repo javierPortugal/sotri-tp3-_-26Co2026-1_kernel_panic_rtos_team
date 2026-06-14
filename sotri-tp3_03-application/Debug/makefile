@@ -65,8 +65,8 @@ all: main-build
 main-build: sotri-tp3_03-application.elf secondary-outputs
 
 # Tool invocations
-sotri-tp3_03-application.elf sotri-tp3_03-application.map: $(OBJS) $(USER_OBJS) C:\Users\javie\OneDrive\Documentos\FIUBA\RTOS_I\kernel_panic_rtos-tp3\tp3\sotri-tp3_03-application\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "sotri-tp3_03-application.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\javie\OneDrive\Documentos\FIUBA\RTOS_I\kernel_panic_rtos-tp3\tp3\sotri-tp3_03-application\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="sotri-tp3_03-application.map" -Wl,--gc-sections -static -specs=rdimon.specs --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+sotri-tp3_03-application.elf sotri-tp3_03-application.map: $(OBJS) $(USER_OBJS) C:\Users\javie\OneDrive\Documentos\FIUBA\RTOS_I\new\sotri-tp3-_-26Co2026-1_kernel_panic_rtos_team\sotri-tp3_03-application\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "sotri-tp3_03-application.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\javie\OneDrive\Documentos\FIUBA\RTOS_I\new\sotri-tp3-_-26Co2026-1_kernel_panic_rtos_team\sotri-tp3_03-application\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="sotri-tp3_03-application.map" -Wl,--gc-sections -static -specs=rdimon.specs --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -27,9 +27,9 @@ app/src/app_it.o: ../app/src/app_it.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_03-application/app/inc/logger.h \
- C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_03-application/app/inc/dwt.h \
- C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_03-application/app/inc/board.h
+ C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/new/sotri-tp3-_-26Co2026-1_kernel_panic_rtos_team/sotri-tp3_03-application/app/inc/logger.h \
+ C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/new/sotri-tp3-_-26Co2026-1_kernel_panic_rtos_team/sotri-tp3_03-application/app/inc/dwt.h \
+ C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/new/sotri-tp3-_-26Co2026-1_kernel_panic_rtos_team/sotri-tp3_03-application/app/inc/board.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -59,6 +59,6 @@ app/src/app_it.o: ../app/src/app_it.c ../Core/Inc/main.h \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
-C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_03-application/app/inc/logger.h:
-C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_03-application/app/inc/dwt.h:
-C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_03-application/app/inc/board.h:
+C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/new/sotri-tp3-_-26Co2026-1_kernel_panic_rtos_team/sotri-tp3_03-application/app/inc/logger.h:
+C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/new/sotri-tp3-_-26Co2026-1_kernel_panic_rtos_team/sotri-tp3_03-application/app/inc/dwt.h:
+C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/new/sotri-tp3-_-26Co2026-1_kernel_panic_rtos_team/sotri-tp3_03-application/app/inc/board.h:
