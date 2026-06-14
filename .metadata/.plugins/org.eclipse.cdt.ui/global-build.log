@@ -1,14 +1,25 @@
-15:24:52 **** Incremental Build of configuration Debug for project sotri-tp3_03-application ****
+15:41:07 **** Incremental Build of configuration Debug for project sotri-tp3_04-application ****
 make -j12 all 
-arm-none-eabi-size  sotri-tp3_03-application.elf 
+arm-none-eabi-gcc "../app/src/task_gate_a.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I"C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_04-application/app/inc" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"app/src/task_gate_a.d" -MT"app/src/task_gate_a.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "app/src/task_gate_a.o"
+arm-none-eabi-gcc "../app/src/task_gate_b.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I"C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_04-application/app/inc" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"app/src/task_gate_b.d" -MT"app/src/task_gate_b.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "app/src/task_gate_b.o"
+arm-none-eabi-gcc "../app/src/task_gate_c.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I"C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_04-application/app/inc" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"app/src/task_gate_c.d" -MT"app/src/task_gate_c.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "app/src/task_gate_c.o"
+arm-none-eabi-gcc "../app/src/task_gate_d.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I"C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_04-application/app/inc" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"app/src/task_gate_d.d" -MT"app/src/task_gate_d.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "app/src/task_gate_d.o"
+arm-none-eabi-gcc "../app/src/task_test.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I"C:/Users/javie/OneDrive/Documentos/FIUBA/RTOS_I/kernel_panic_rtos-tp3/tp3/sotri-tp3_04-application/app/inc" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"app/src/task_test.d" -MT"app/src/task_test.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "app/src/task_test.o"
+arm-none-eabi-gcc -o "sotri-tp3_04-application.elf" @"objects.list"  -lrdimon -mcpu=cortex-m4 -T"C:\Users\javie\OneDrive\Documentos\FIUBA\RTOS_I\kernel_panic_rtos-tp3\tp3\sotri-tp3_04-application\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="sotri-tp3_04-application.map" -Wl,--gc-sections -static -specs=rdimon.specs --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: sotri-tp3_04-application.elf
+ 
+arm-none-eabi-size  sotri-tp3_04-application.elf 
+arm-none-eabi-objdump -h -S sotri-tp3_04-application.elf  > "sotri-tp3_04-application.list"
    text	   data	    bss	    dec	    hex	filename
-  33008	    148	  18844	  52000	   cb20	sotri-tp3_03-application.elf
+  34016	    128	  18848	  52992	   cf00	sotri-tp3_04-application.elf
 Finished building: default.size.stdout
  
-15:25:00 **** Incremental Build of configuration Debug for project sotri-tp3_03-application ****
+Finished building: sotri-tp3_04-application.list
+ 
+15:41:21 **** Incremental Build of configuration Debug for project sotri-tp3_04-application ****
 make -j12 all 
-arm-none-eabi-size  sotri-tp3_03-application.elf 
+arm-none-eabi-size  sotri-tp3_04-application.elf 
    text	   data	    bss	    dec	    hex	filename
-  33008	    148	  18844	  52000	   cb20	sotri-tp3_03-application.elf
+  34016	    128	  18848	  52992	   cf00	sotri-tp3_04-application.elf
 Finished building: default.size.stdout
  
