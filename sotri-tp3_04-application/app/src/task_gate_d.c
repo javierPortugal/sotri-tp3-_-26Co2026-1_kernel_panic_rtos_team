@@ -76,49 +76,20 @@ void task_gate_d(void *parameters)
 	for (;;)
 	{
 		/* Update Task Counter */
-//		g_task_gate_d_cnt++;
-//		xSemaphoreTake(h_open_d_bin_sem, portMAX_DELAY);
-//		{
-//			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-//		}
+		g_task_gate_d_cnt++;
+		xSemaphoreTake(h_open_d_bin_sem, portMAX_DELAY);
+		{
+			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+		}
 
     	/* Print out: Wait 2500mS */
-//		LOGGER_INFO(p_task_gate_d_wait_2500mS);
-//		vTaskDelay(TASK_GATE_D_DEL_MAX);
+		LOGGER_INFO(p_task_gate_d_wait_2500mS);
+		vTaskDelay(TASK_GATE_D_DEL_MAX);
 
-//		xSemaphoreTake(h_close_d_bin_sem, portMAX_DELAY);
-//		{
-//			xSemaphoreGive(h_mutex_mut_sem);
-//		}
-
-
-	    // 1. Esperar el estímulo de apertura de test
-	    if (xSemaphoreTake(h_open_d_bin_sem, portMAX_DELAY) == pdPASS)
-	    {
-	        g_task_gate_d_cnt++;
-	        LOGGER_INFO(" [Gate D] Petición de apertura recibida. Esperando Mutex...");
-
-	        // 2. Intentar tomar el Mutex de la esclusa
-	        if (xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY) == pdPASS)
-	        {
-	            // --- ENTRADA A LA SECCIÓN CRÍTICA ---
-	            LOGGER_INFO(" [Gate D] ==> Esclusa ADQUIRIDA - Esperando 2500ms");
-	            vTaskDelay(TASK_GATE_D_DEL_MAX);
-
-	            // 3. Esperar el estímulo de cierre MIENTRAS se retiene el Mutex
-	            if (xSemaphoreTake(h_close_d_bin_sem, portMAX_DELAY) == pdPASS)
-	            {
-	                LOGGER_INFO(" [Gate D] Confirmación de cierre recibida.");
-	            }
-
-	            // 4. Liberar el Mutex OBLIGATORIAMENTE
-	            xSemaphoreGive(h_mutex_mut_sem);
-	            LOGGER_INFO(" [Gate D] Puerta cerrada. Esclusa liberada.");
-	            // --- FIN DE LA SECCIÓN CRÍTICA ---
-	        }
-	    }
-
-
+		xSemaphoreTake(h_close_d_bin_sem, portMAX_DELAY);
+		{
+			xSemaphoreGive(h_mutex_mut_sem);
+		}
 	}
 }
 

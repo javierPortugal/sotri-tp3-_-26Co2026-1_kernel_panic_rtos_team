@@ -33,148 +33,173 @@
  */
 
 /********************** inclusions *******************************************/
+/* Project includes */
 #include "main.h"
 #include "cmsis_os.h"
+
+/* Demo includes */
 #include "logger.h"
 #include "dwt.h"
+
+/* Application & Tasks includes */
 #include "board.h"
 #include "app.h"
 
 /********************** macros and definitions *******************************/
 #define G_TASK_TEST_CNT_INI		0ul
 
-// Reducimos el tiempo de paso entre estímulos para hacerlo dinámico y reactivo
-#define TASK_TEST_DEL_SHORT     (pdMS_TO_TICKS(1000ul)) // 1 segundo entre eventos del mismo ciclo
-#define TASK_TEST_DEL_LONG      (pdMS_TO_TICKS(4000ul)) // 4 segundos entre ráfagas completas
+#define TASK_TEST_TICK_DEL_ZERO	(pdMS_TO_TICKS(0ul))
+#define TASK_TEST_TICK_DEL_MAX	(pdMS_TO_TICKS(5000ul))
 
-// 1. Change the active scenario index to 7 to test Gates C and D
-//#define E_TASK_TEST_X (7)
+/********************** internal data declaration ****************************/
+/* Events to excite tasks */
+typedef enum e_task_test {Error, OPEN_REQUEST_A, DOOR_CLOSED_A, OPEN_REQUEST_B, DOOR_CLOSED_B, OPEN_REQUEST_C, DOOR_CLOSED_C, OPEN_REQUEST_D, DOOR_CLOSED_D} e_task_test_t;
 
-typedef enum e_task_test {
-    Error,
-    OPEN_REQUEST_A, DOOR_CLOSED_A,
-    OPEN_REQUEST_B, DOOR_CLOSED_B,
-    OPEN_REQUEST_C, DOOR_CLOSED_C,
-    OPEN_REQUEST_D, DOOR_CLOSED_D
-} e_task_test_t;
-
-
-//E_TASK_TEST_X con 6 prueba A y B, con 7 Cy D, con 8 A,B,C, y D
+/********************** internal functions declaration ***********************/
 
 /********************** internal data definition *****************************/
-#define E_TASK_TEST_X (8) // Usaremos el caso 6 para simular estrés de concurrencia
+const char *p_task_test								= "Periodically excites other tasks";
+const char *p_task_test_priority					= "  <=> Task Test - Priority:";
+const char *p_task_test_e_task_test_array			= "  <=> Task Test - e_task_test_array:";
 
-#if (E_TASK_TEST_X == 6)
-/* ESCENARIO DE ESTRÉS: A y B piden entrar casi al mismo tiempo.
-   El Mutex DEBE bloquear a B hasta que A reciba su CLOSE. */
-const e_task_test_t e_task_test_array[] = {
-    OPEN_REQUEST_A,
-    OPEN_REQUEST_B,  // Concurrencia: B pide mientras A está adentro
-    DOOR_CLOSED_A,   // Se cierra A -> El Mutex debe pasar automáticamente a B
-    DOOR_CLOSED_B    // Se cierra B -> Esclusa libre
-};
+const char *p_task_test_signal_error  				= "  <=> Task Test - Signal: Error    <=>";
+
+const char *p_task_test_wait_5000mS					= "  <=> Task Test - Wait:   5000mS";
+
+const char *p_task_test_signal_open_request_a		= "  <=> Task Test - Signal: OPEN_REQUEST_A <=>";
+const char *p_task_test_signal_door_closed_a		= "  <=> Task Test - Signal: DOOR_CLOSED_A  <=>";
+
+#define E_TASK_TEST_X (5)
+
+#if (E_TASK_TEST_X == 0)
+/* Array of events to excite tasks */
+const e_task_test_t e_task_test_array[] = {Error, Exit_B+1, Exit_B+2};
 #endif
 
-
-
-#if (E_TASK_TEST_X == 7)
-/* Stress test for Gates C and D.
-   Gate C and Gate D compete for the Airlock space simultaneously. */
-const e_task_test_t e_task_test_array[] = {
-    OPEN_REQUEST_C,
-    OPEN_REQUEST_D,  // Concurrency: D requests entry while C is inside
-    DOOR_CLOSED_C,   // Gate C closes -> Mutex should hand over control to Gate D
-    DOOR_CLOSED_D    // Gate D closes -> Airlock completely free
-};
+#if (E_TASK_TEST_X == 1)
+/* Array of events to excite tasks */
+const e_task_test_t e_task_test_array[] = {OPEN_REQUEST_A, DOOR_CLOSED_A, OPEN_REQUEST_A, DOOR_CLOSED_A};
 #endif
 
-#if (E_TASK_TEST_X == 8)
-/* ESCENARIO DE MÁXIMO ESTRÉS:
-   Las 4 compuertas piden entrar juntas. El Mutex debe ordenarlas una a una. */
-const e_task_test_t e_task_test_array[] = {
-    OPEN_REQUEST_A,
-    OPEN_REQUEST_B,
-    OPEN_REQUEST_C,
-    OPEN_REQUEST_D,  // Las 4 están ahora compitiendo por el Mutex
-
-    DOOR_CLOSED_A,   // Se cierra A -> Libera el Mutex para la siguiente en cola
-    DOOR_CLOSED_B,   // Se cierra B -> Libera el Mutex para la siguiente
-    DOOR_CLOSED_C,   // Se cierra C -> Libera el Mutex para la última
-    DOOR_CLOSED_D    // Se cierra D -> Esclusa totalmente vacía
-};
+#if (E_TASK_TEST_X == 2)
+/* Array of events to excite tasks */
+const e_task_test_t e_task_test_array[] = {OPEN_REQUEST_A, DOOR_CLOSED_A, OPEN_REQUEST_B, DOOR_CLOSED_B};
 #endif
 
+#if (E_TASK_TEST_X == 3)
+/* Array of events to excite tasks */
+const e_task_test_t e_task_test_array[] = {OPEN_REQUEST_B, DOOR_CLOSED_B, OPEN_REQUEST_C, DOOR_CLOSED_C};
+#endif
+
+#if (E_TASK_TEST_X == 4)
+/* Array of events to excite tasks */
+const e_task_test_t e_task_test_array[] = {OPEN_REQUEST_C, DOOR_CLOSED_C, OPEN_REQUEST_D, DOOR_CLOSED_D};
+#endif
+
+#if (E_TASK_TEST_X == 5)
+/* Array of events to excite tasks */
+const e_task_test_t e_task_test_array[] = {OPEN_REQUEST_D, DOOR_CLOSED_D, OPEN_REQUEST_A, DOOR_CLOSED_A};
+#endif
 
 /********************** external data declaration *****************************/
 uint32_t g_task_test_cnt;
 
 /********************** external functions definition ************************/
+/* Task Test thread */
 void task_test(void *parameters)
 {
 	g_task_test_cnt = G_TASK_TEST_CNT_INI;
-	TickType_t last_wake_time = xTaskGetTickCount();
 
+	/*  Declare & Initialize Task Function variables for argument, led, button and task */
+	TickType_t last_wake_time;
+
+	/* The xLastWakeTime variable needs to be initialized with the current tick
+	   count. ws*/
+	last_wake_time = xTaskGetTickCount();
+
+	/* Print out: Task Initialized */
 	LOGGER_INFO(" ");
 	LOGGER_INFO("  %s is running - Tick [mS] = %lu", pcTaskGetName(NULL), xTaskGetTickCount());
 
-	/* Elevar la prioridad de Test por encima de las compuertas (las compuertas deben ser prioridad 5)
-	   para que el generador de estímulos no sufra retrasos por culpa de los bucles de las puertas */
-	vTaskPrioritySet(NULL, 6);
-	LOGGER_INFO("  <=> Task Test - Priority Set to: %d", (int)uxTaskPriorityGet(NULL));
+	/* This task will run the first time after other tasks as it has the lower
+	 * priority.
+	 *
+	 * Query the priority at which this task is running - passing in NULL means
+	 * "return our own priority". */
+	UBaseType_t task_test_priority;
+	task_test_priority = uxTaskPriorityGet(NULL) + 2ul;
 
+	/* Setting the TestingTask priority above the other tasks priority will
+	 * cause TestingTask to immediately start running (as then TestingTask
+	 * will have the higher priority of the three created tasks). */
+	vTaskPrioritySet(NULL, task_test_priority);
+
+	/* Print out: Task priority */
+	LOGGER_INFO("%s %s %d", p_task_test_priority, pcTaskGetName(NULL), (int)task_test_priority);
+
+	/* As per most tasks, this task is implemented in an infinite loop. */
 	for (;;)
 	{
-		uint32_t index;
+		uint32_t index = E_TASK_TEST_X;
 
+		/* Scanning the array of events to excite tasks */
 		for (index = 0; index < (sizeof(e_task_test_array)/sizeof(e_task_test_t)); index++)
 		{
+			/* Update Task Task Counter */
 			g_task_test_cnt++;
-			e_task_test_t evento = e_task_test_array[index];
 
-			switch (evento) {
+			/* Print out: Event Task Test Array Index */
+			LOGGER_INFO(" ");
+			LOGGER_INFO("%s %s %d", p_task_test_e_task_test_array, GET_NAME(index), (int)index);
+
+			switch (e_task_test_array[index]) {
+
 	    		case OPEN_REQUEST_A:
-	    			LOGGER_INFO("  <=> [TEST] ---> Enviando: OPEN_REQUEST_A");
 	    			xSemaphoreGive(h_open_a_bin_sem);
 		    		break;
+
 	    		case DOOR_CLOSED_A:
-	    			LOGGER_INFO("  <=> [TEST] ---> Enviando: DOOR_CLOSED_A");
 	    			xSemaphoreGive(h_close_a_bin_sem);
 		    		break;
+
 	    		case OPEN_REQUEST_B:
-	    			LOGGER_INFO("  <=> [TEST] ---> Enviando: OPEN_REQUEST_B");
 	    			xSemaphoreGive(h_open_b_bin_sem);
 		    		break;
+
 	    		case DOOR_CLOSED_B:
-	    			LOGGER_INFO("  <=> [TEST] ---> Enviando: DOOR_CLOSED_B");
 	    			xSemaphoreGive(h_close_b_bin_sem);
 		    		break;
+
 	    		case OPEN_REQUEST_C:
-	    			LOGGER_INFO("  <=> [TEST] ---> Enviando: OPEN_REQUEST_C");
 	    			xSemaphoreGive(h_open_c_bin_sem);
 		    		break;
+
 	    		case DOOR_CLOSED_C:
-	    			LOGGER_INFO("  <=> [TEST] ---> Enviando: DOOR_CLOSED_C");
 	    			xSemaphoreGive(h_close_c_bin_sem);
 		    		break;
+
 	    		case OPEN_REQUEST_D:
-	    			LOGGER_INFO("  <=> [TEST] ---> Enviando: OPEN_REQUEST_D");
 	    			xSemaphoreGive(h_open_d_bin_sem);
 		    		break;
+
 	    		case DOOR_CLOSED_D:
-	    			LOGGER_INFO("  <=> [TEST] ---> Enviando: DOOR_CLOSED_D");
 	    			xSemaphoreGive(h_close_d_bin_sem);
 		    		break;
+
+
+	    		case Error:
 		    	default:
-		    		LOGGER_INFO("  <=> [TEST] ---> Signal: Error");
+
+		    		/* Print out: Signal Error */
+		    		LOGGER_INFO(p_task_test_signal_error);
 		    		break;
 		    }
 
-			/* Esperar un breve retraso antes de inyectar el próximo evento del array */
-			vTaskDelayUntil(&last_wake_time, TASK_TEST_DEL_SHORT);
+			/* We want this task to execute exactly every 5000 milliseconds. */
+			LOGGER_INFO(p_task_test_wait_5000mS);
+			vTaskDelayUntil(&last_wake_time, TASK_TEST_TICK_DEL_MAX);
 		}
-
-		/* Pausa larga antes de reiniciar todo el ciclo de ráfagas */
-		vTaskDelayUntil(&last_wake_time, TASK_TEST_DEL_LONG);
 	}
 }
 
+/********************** end of file ******************************************/

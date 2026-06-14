@@ -166,17 +166,12 @@ void app_init(void)
 	/* Add threads, ... */
     BaseType_t ret;
 
-  /*aqui asigno pioridad 5 para todos los task y prioridad 6 para task_test*/
-
-
     /* Task Gate A thread at priority 3 */
-
-
     ret = xTaskCreate(task_gate_a,						/* Pointer to the function thats implement the task. */
 					  "Task Gate A",					/* Text name for the task. This is to facilitate debugging only. */
 					  (configMINIMAL_STACK_SIZE),		/* Stack depth in words. */
 					  NULL,								/* We are not using the task parameter. */
-					  (tskIDLE_PRIORITY + 5ul),			/* This task will run at priority 1. */
+					  (tskIDLE_PRIORITY + 3ul),			/* This task will run at priority 1. */
 					  &h_task_gate_a);					/* We are using a variable as task handle. */
 
     /* Check the thread was created successfully. */
@@ -187,7 +182,7 @@ void app_init(void)
 					  "Task Gate B",					/* Text name for the task. This is to facilitate debugging only. */
 					  (configMINIMAL_STACK_SIZE),		/* Stack depth in words. */
 					  NULL,								/* We are not using the task parameter. */
-					  (tskIDLE_PRIORITY + 5ul),			/* This task will run at priority 1. */
+					  (tskIDLE_PRIORITY + 2ul),			/* This task will run at priority 1. */
 					  &h_task_gate_b);					/* We are using a variable as task handle. */
 
     /* Check the thread was created successfully. */
@@ -198,7 +193,7 @@ void app_init(void)
 					  "Task Gate C",					/* Text name for the task. This is to facilitate debugging only. */
 					  (configMINIMAL_STACK_SIZE),		/* Stack depth in words. */
 					  NULL,								/* We are not using the task parameter. */
-					  (tskIDLE_PRIORITY + 5ul),			/* This task will run at priority 1. */
+					  (tskIDLE_PRIORITY + 3ul),			/* This task will run at priority 1. */
 					  &h_task_gate_c);					/* We are using a variable as task handle. */
 
     /* Check the thread was created successfully. */
@@ -209,7 +204,7 @@ void app_init(void)
 					  "Task Gate D",					/* Text name for the task. This is to facilitate debugging only. */
 					  (configMINIMAL_STACK_SIZE),		/* Stack depth in words. */
 					  NULL,								/* We are not using the task parameter. */
-					  (tskIDLE_PRIORITY + 5ul),			/* This task will run at priority 1. */
+					  (tskIDLE_PRIORITY + 2ul),			/* This task will run at priority 1. */
 					  &h_task_gate_d);					/* We are using a variable as task handle. */
 
     /* Check the thread was created successfully. */
@@ -220,7 +215,7 @@ void app_init(void)
 					  "Task Test",						/* Text name for the task. This is to facilitate debugging only. */
 					  (configMINIMAL_STACK_SIZE),		/* Stack depth in words. */
 					  NULL,								/* We are not using the task parameter. */
-					  (tskIDLE_PRIORITY + 6ul),			/* This task will run at priority 1. */
+					  (tskIDLE_PRIORITY + 1ul),			/* This task will run at priority 1. */
 					  &h_task_test);					/* We are using a variable as task handle. */
 
     /* Check the thread was created successfully. */
