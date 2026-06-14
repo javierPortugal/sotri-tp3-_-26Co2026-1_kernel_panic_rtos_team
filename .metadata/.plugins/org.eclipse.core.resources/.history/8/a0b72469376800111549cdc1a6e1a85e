@@ -32,7 +32,7 @@
  * @author : Juan Manuel Cruz <jcruz@fi.uba.ar> <jcruz@frba.utn.edu.ar>
  */
 
-/********************** inclusions **************************************************/
+/********************** inclusions *******************************************/
 /* Project includes */
 #include "main.h"
 #include "cmsis_os.h"
