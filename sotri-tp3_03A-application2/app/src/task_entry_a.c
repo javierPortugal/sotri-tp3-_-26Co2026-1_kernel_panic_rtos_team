@@ -70,22 +70,22 @@ void task_entry_a(void *parameters)
 
 	    xSemaphoreTake(h_entry_a_bin_sem, (portTickType) 0);
 
-	    // Variable de estado para recordar si ya tenemos un auto esperando en la entrada
+	    // bandera para saber si tenemos un auto esperando en la entrada
 	    uint8_t auto_en_espera = 0;
 
 	    for (;;)
 	    {
-	        // 1. CONTROL DEL SENSOR: Solo esperamos al sensor físico si NO hay un auto retenido del ciclo anterior
+	        // 1. ctrl del sensor: Solo esperamos al sensor para saber si no hay un auto retenido del ciclo anterior
 	        if (!auto_en_espera)
 	        {
 	            xSemaphoreTake(h_entry_a_bin_sem, portMAX_DELAY);
 	            g_task_entry_a_cnt++;
-	            auto_en_espera = 1; // Registramos que hay un auto intentando cruzar
+	            auto_en_espera = 1; // asignamos que hay un auto intentando cruzar
 	        }
 
 	        uint8_t vehiculo_cruzo = 0;
 
-	        // 2. EVALUACIÓN DE RECURSOS (Tu bloque de código exacto)
+	        // 2. evaluamos
 	        xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
 	        {
 	            if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_a == 1)
@@ -104,20 +104,18 @@ void task_entry_a(void *parameters)
 	                }
 
 	                vehiculo_cruzo = 1;
-	                auto_en_espera = 0; // El auto ya pasó, liberamos la retención de la entrada
+	                auto_en_espera = 0; // el auto paso, liberamos la entrada
 	            }
 	        }
 	        xSemaphoreGive(h_mutex_mut_sem);
 
-	        // 3. BLOQUEO EFICIENTE (Tu lógica exacta de sincronización con la salida)
+	        // 3. bloqueamos
 	        if (!vehiculo_cruzo)
 	        {
 	            LOGGER_INFO("Entrada A bloqueada (lleno o rojo). Durmiendo tarea...");
-	            xSemaphoreTake(h_go_a_bin_sem, portMAX_DELAY); // La CPU descansa aquí libre de polling
+	            xSemaphoreTake(h_go_a_bin_sem, portMAX_DELAY);
 
-	            // Al despertar gracias al 'Give' de task_exit_a, el flujo continúa,
-	            // el ciclo 'for' se repite, se salta el sensor físico (porque auto_en_espera es 1)
-	            // y vuelve a evaluar el Mutex inmediatamente.
+
 	        }
 	    }
 

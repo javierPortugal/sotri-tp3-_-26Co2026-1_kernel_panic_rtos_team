@@ -65,78 +65,39 @@ uint32_t g_task_exit_b_cnt;
 /* Task thread */
 void task_exit_b(void *parameters)
 {
-	/*  Declare & Initialize Task Function variables */
-	g_task_exit_b_cnt = G_TASK_EXIT_B_CNT_INI;
+    g_task_exit_b_cnt = 0ul;
+    LOGGER_INFO("  %s is running", pcTaskGetName(NULL));
 
-	/* Print out: Task Initialized */
-	LOGGER_INFO(" ");
-	LOGGER_INFO("  %s is running - Tick [mS] = %lu", pcTaskGetName(NULL), xTaskGetTickCount());
+    for (;;)
+    {
+        xSemaphoreTake(h_exit_b_bin_sem, portMAX_DELAY);
+        g_task_exit_b_cnt++;
 
-	/* As per most tasks, this task is implemented in an infinite loop. */
-	for (;;)
-	{
-		/* Update Task Counter */
-//		g_task_exit_b_cnt++;
+        xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+        {
+            if (g_tasks_cnt > 0)
+            {
+                g_tasks_cnt--;
+                LOGGER_INFO("Vehiculo saliendo de B. Total en cruce: %lu", g_tasks_cnt);
 
-//		xSemaphoreTake(h_exit_b_bin_sem, portMAX_DELAY);
-//		{
-
-//			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-//			{
-//				if(g_tasks_cnt > 0) {
-//					LOGGER_INFO("Vehiculo saliendo de B");
-//					g_tasks_cnt--;
-//				}
-				// se libero el paso, pongo mi semaforo en verde, si es
-				// que esta en rojo
-//				if(semaforo_b == 0) {
-//					semaforo_b = 1;
-//					LOGGER_INFO("Semaforo B en verde");
-//				}
-				// si ya no hay mas transito por la via del lado a
-				// entonces libero semaforo opuesto
-//				if(g_tasks_cnt == 0) {
-//					semaforo_a = 1;
-//					LOGGER_INFO("Transito liberado. Semaforo A en verde");
-//				}
-
-//			}
-//			xSemaphoreGive(h_mutex_mut_sem);
-//		}
-    	/* Print out: Wait 2500mS */
-//		LOGGER_INFO(p_task_exit_b_wait_2500mS);
-//		vTaskDelay(TASK_EXIT_B_DEL_MAX);
-
-
-		xSemaphoreTake(h_exit_b_bin_sem, portMAX_DELAY);
-		    g_task_exit_b_cnt++;
-
-		    xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-		    {
-		        if (g_tasks_cnt > 0)
-		        {
-		            g_tasks_cnt--;
-		            LOGGER_INFO("Vehiculo saliendo de B. Total en cruce: %lu", g_tasks_cnt);
-
-		            if (g_tasks_cnt == 0)
-		            {
-		                semaforo_b = 0; // Cerramos B de manera explícita
-		                semaforo_a = 1; // Abrimos A de manera excluyente
-		                LOGGER_INFO("Cruce vacio. Semaforo B -> ROJO, Semaforo A -> VERDE");
-		            }
-		            else if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_b == 0)
-		            {
-		                semaforo_b = 1;
-		                LOGGER_INFO("Semaforo B reabierto en VERDE");
-		            }
-		        }
-		    }
-		    xSemaphoreGive(h_mutex_mut_sem);
-
-
-
-
-	}
+                if (g_tasks_cnt == 0)
+                {
+                    semaforo_a = 1;
+                    semaforo_b = 1;
+                    LOGGER_INFO("Cruce vacio de forma segura. AMBOS semaforos en VERDE.");
+                    xSemaphoreGive(h_go_a_bin_sem);
+                    xSemaphoreGive(h_go_b_bin_sem);
+                }
+                else if (g_tasks_cnt < G_TASKS_CNT_MAX)
+                {
+                    semaforo_b = 1;
+                    LOGGER_INFO("Espacio liberado en el cruce. Semaforo B habilitado.");
+                    xSemaphoreGive(h_go_b_bin_sem);
+                }
+            }
+        }
+        xSemaphoreGive(h_mutex_mut_sem);
+    }
 
 
 }

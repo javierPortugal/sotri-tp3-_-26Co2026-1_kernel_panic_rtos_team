@@ -73,7 +73,7 @@ void task_exit_a(void *parameters)
 
     for (;;)
     {
-        // 1. Bloqueo eficiente: Esperar la señal física del sensor de salida A
+        // 1 bloqueamos esperamos la señal del sensor de salida a
         xSemaphoreTake(h_exit_a_bin_sem, portMAX_DELAY);
 
         /* Update Task Counter */
@@ -87,27 +87,27 @@ void task_exit_a(void *parameters)
                 g_tasks_cnt--;
                 LOGGER_INFO("Vehiculo saliendo de A. Total en cruce: %lu", g_tasks_cnt);
 
-                // CONTROL DE ALTERNANCIA Y DESBLOQUEO
+                // contrl alternancia y desbloqueo
                 if (g_tasks_cnt == 0)
                 {
-                    // CORRECCIÓN CRÍTICA: Si el cruce se vacía, AMBOS vuelven a estar disponibles.
-                    // El primer vehículo que llegue de cualquier lado tomará la prioridad.
+                    // Si el cruce se vacía, los semafores deben de estar disponibles
+                    // El primer vehículo que llegue cuando el cruce esta vacio puede ingresar com,o prioritario
                     semaforo_a = 1;
                     semaforo_b = 1;
                     LOGGER_INFO("Cruce vacio de forma segura. AMBOS semaforos en VERDE.");
 
-                    // Despertamos ambas entradas de control por si había autos en espera
+                    // ambas entradas de control disponibles por si había autos en espera
                     xSemaphoreGive(h_go_a_bin_sem);
                     xSemaphoreGive(h_go_b_bin_sem);
                 }
                 else if (g_tasks_cnt < G_TASKS_CNT_MAX)
                 {
-                    // Si aún quedan autos en el cruce pero se liberó un lugar,
-                    // permitimos que la ráfaga de la entrada A continúe fluyendo.
+                    // Si aun quedan autos en el cruce pero se libera un lugar,permitimos el flujo
+
                     semaforo_a = 1;
                     LOGGER_INFO("Espacio liberado en el cruce. Semaforo A habilitado.");
 
-                    // Despertamos específicamente a la entrada A para evaluar el paso
+                    // para evaluar el paso en a
                     xSemaphoreGive(h_go_a_bin_sem);
                 }
             }
