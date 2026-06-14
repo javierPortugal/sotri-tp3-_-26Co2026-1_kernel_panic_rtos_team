@@ -65,90 +65,61 @@ uint32_t g_task_entry_a_cnt;
 /* Task thread */
 void task_entry_a(void *parameters)
 {
-	/*  Declare & Initialize Task Function variables */
-	g_task_entry_a_cnt = G_TASK_ENTRY_A_CNT_INI;
+	 g_task_entry_a_cnt = G_TASK_ENTRY_A_CNT_INI;
+	    LOGGER_INFO("  %s is running", pcTaskGetName(NULL));
 
-	/* Print out: Task Initialized */
-	LOGGER_INFO(" ");
-	LOGGER_INFO("  %s is running - Tick [mS] = %lu", pcTaskGetName(NULL), xTaskGetTickCount());
+	    xSemaphoreTake(h_entry_a_bin_sem, (portTickType) 0);
 
-	/* Take the semaphore once to start with so the semaphore is empty before the
-	 * infinite loop is entered.  The semaphore was created before the scheduler
-	 * was started so before this task ran for the first time.*/
-	xSemaphoreTake(h_entry_a_bin_sem, (portTickType) 0);	// h_entry_a_bin_sem = Semaphore(0)
-	xSemaphoreTake(h_entry_b_bin_sem, (portTickType) 0);	// h_entry_b_bin_sem = Semaphore(0)
+	    // bandera para saber si tenemos un auto esperando en la entrada
+	    uint8_t auto_en_espera = 0;
 
-	/* Setting the priority of Task A above the priority of other tasks will
-	 * cause Task A to start executing immediately, allowing it to put the
-	 * semaphores into the initial state required by the application, and then
-	 * regain the same priority of other tasks. */
-	vTaskPrioritySet(h_task_entry_a, (uxTaskPriorityGet(h_task_entry_b)));
+	    for (;;)
+	    {
+	        // 1. ctrl del sensor: Solo esperamos al sensor para saber si no hay un auto retenido del ciclo anterior
+	        if (!auto_en_espera)
+	        {
+	            xSemaphoreTake(h_entry_a_bin_sem, portMAX_DELAY);
+	            g_task_entry_a_cnt++;
+	            auto_en_espera = 1; // asignamos que hay un auto intentando cruzar
+	        }
 
+	        uint8_t vehiculo_cruzo = 0;
 
-	/* As per most tasks, this task is implemented in an infinite loop. */
-	for (;;)
-	{
-		/* Update Task Counter */
-//		g_task_entry_a_cnt++;
+	        // 2. evaluamos
+	        xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+	        {
+	            if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_a == 1)
+	            {
+	                g_tasks_cnt++;
+	                LOGGER_INFO("Vehiculo Circulando por A. Total en cruce: %lu", g_tasks_cnt);
 
+	                if (g_tasks_cnt == G_TASKS_CNT_MAX) {
+	                    semaforo_a = 0;
+	                    LOGGER_INFO("Semaforo A en rojo (Limite maximo alcanzado)");
+	                }
 
-//		xSemaphoreTake(h_entry_a_bin_sem, portMAX_DELAY);
-//		{
-//			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-//			{
-//				if(g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_a == 1) {
-//					LOGGER_INFO("Vehiculo Circulando por A");
-//					g_tasks_cnt++;
-//					if(g_tasks_cnt == G_TASKS_CNT_MAX) {
-//						semaforo_a = 0;
-//						LOGGER_INFO("Semaforo A en rojo");
-//					}
-//					if(semaforo_b == 1) {
-//						semaforo_b = 0;
-//						LOGGER_INFO("Semaforo B en rojo");
-//					}
-//				}
-//			}
-//			xSemaphoreGive(h_mutex_mut_sem);
-//		}
-		/* Print out: Wait 2500mS */
-//		LOGGER_INFO(p_task_entry_a_wait_2500mS);
-//		vTaskDelay(TASK_ENTRY_A_DEL_MAX);
+	                if (semaforo_b == 1) {
+	                    semaforo_b = 0;
+	                    LOGGER_INFO("Semaforo B asegurado en rojo");
+	                }
 
+	                vehiculo_cruzo = 1;
+	                auto_en_espera = 0; // el auto paso, liberamos la entrada
+	            }
+	        }
+	        xSemaphoreGive(h_mutex_mut_sem);
 
-		// Tomamos el mutex para evaluar y modificar las variables globales de forma segura
-				xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-				{
-					if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_a == 1)
-					{
-						g_tasks_cnt++;
-						LOGGER_INFO("Vehiculo Circulando por A. Total en cruce: %lu", g_tasks_cnt);
-
-						// Si alcanzamos el límite máximo, cerramos nuestro semáforo
-						if (g_tasks_cnt == G_TASKS_CNT_MAX) {
-							semaforo_a = 0;
-							LOGGER_INFO("Semaforo A en rojo (Limite maximo alcanzado)");
-						}
-
-						// Aseguramos la exclusión mutua cerrando el semáforo opuesto si estaba abierto
-						if (semaforo_b == 1) {
-							semaforo_b = 0;
-							LOGGER_INFO("Semaforo B asegurado en rojo");
-						}
-
-						vehiculo_cruzo = 1; // Bandera para romper el bucle while y permitir avanzar
-					}
-				}
-				xSemaphoreGive(h_mutex_mut_sem);
-
-				// bloquea hasta que el exit le permita dar el siguiente paso
-				if (!vehiculo_cruzo) {
-					xSemaphoreTake(h_go_a_bin_sem, portMAX_DELAY);
-				}
+	        // 3. bloqueamos
+	        if (!vehiculo_cruzo)
+	        {
+	            LOGGER_INFO("Entrada A bloqueada (lleno o rojo). Durmiendo tarea...");
+	            xSemaphoreTake(h_go_a_bin_sem, portMAX_DELAY);
 
 
+	        }
+	    }
 
-	}
+
 }
 
 /********************** end of file ******************************************/

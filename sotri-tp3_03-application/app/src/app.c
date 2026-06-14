@@ -90,6 +90,9 @@ SemaphoreHandle_t h_exit_b_bin_sem;
 SemaphoreHandle_t h_capacity_count_sem;
 SemaphoreHandle_t h_mutex_mut_sem;
 
+SemaphoreHandle_t h_go_a_bin_sem;
+SemaphoreHandle_t h_go_b_bin_sem;
+
 /* Declare a variable of type TaskHandle_t. This is used to reference threads. */
 TaskHandle_t h_task_entry_a;
 TaskHandle_t h_task_exit_a;
@@ -124,6 +127,15 @@ void app_init(void)
      * successfully.
      *
      * Add queue or semaphore (binary or counting) or mutex to registry. */
+    h_go_a_bin_sem = xSemaphoreCreateBinary();
+    configASSERT(NULL != h_go_a_bin_sem);
+    vQueueAddToRegistry(h_go_a_bin_sem, "Go A Signal");
+
+    h_go_b_bin_sem = xSemaphoreCreateBinary();
+    configASSERT(NULL != h_go_b_bin_sem);
+    vQueueAddToRegistry(h_go_b_bin_sem, "Go B Signal");
+
+
 	h_entry_a_bin_sem = xSemaphoreCreateBinary();
 	configASSERT(NULL != h_entry_a_bin_sem);
 	vQueueAddToRegistry(h_entry_a_bin_sem, "Entry A semaphore");

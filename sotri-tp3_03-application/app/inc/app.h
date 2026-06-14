@@ -71,6 +71,12 @@ extern SemaphoreHandle_t h_exit_b_bin_sem;
 extern SemaphoreHandle_t h_continue_bin_sem;
 extern SemaphoreHandle_t h_mutex_mut_sem;
 
+extern SemaphoreHandle_t h_go_a_bin_sem;
+extern SemaphoreHandle_t h_go_b_bin_sem;
+
+
+
+
 /* Declare a variable of type TaskHandle_t. This is used to reference threads. */
 extern TaskHandle_t h_task_entry_a;
 extern TaskHandle_t h_task_exit_a;

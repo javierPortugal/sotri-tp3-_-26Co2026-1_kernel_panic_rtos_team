@@ -65,80 +65,60 @@ uint32_t g_task_entry_b_cnt;
 /* Task thread */
 void task_entry_b(void *parameters)
 {
-	/*  Declare & Initialize Task Function variables */
-	g_task_entry_b_cnt = G_TASK_ENTRY_B_CNT_INI;
 
-	/* Print out: Task Initialized */
-	LOGGER_INFO(" ");
-	LOGGER_INFO("  %s is running - Tick [mS] = %lu", pcTaskGetName(NULL), xTaskGetTickCount());
+	g_task_entry_b_cnt = 0ul;
+	    LOGGER_INFO("  %s is running", pcTaskGetName(NULL));
 
-	/* As per most tasks, this task is implemented in an infinite loop. */
-	for (;;)
-	{
-		/* Update Task Counter */
-//		g_task_entry_b_cnt++;
+	    xSemaphoreTake(h_entry_b_bin_sem, (portTickType) 0);
+	    uint8_t auto_en_espera = 0;
 
-//		xSemaphoreTake(h_entry_b_bin_sem, portMAX_DELAY);
-//		{
-//			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-//			{
-//				if(g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_b == 1) {
-//					LOGGER_INFO("Vehiculo Circulando por B");
+	    for (;;)
+	    {
+	        // 1. ctrl del sensor
+	        if (!auto_en_espera)
+	        {
+	            xSemaphoreTake(h_entry_b_bin_sem, portMAX_DELAY);
+	            g_task_entry_b_cnt++;
+	            auto_en_espera = 1;
+	        }
 
-//					g_tasks_cnt++;
-//					if(g_tasks_cnt == G_TASKS_CNT_MAX) {
-//						semaforo_b = 0;
-//						LOGGER_INFO("Semaforo B en rojo");
-//					}
+	        uint8_t vehiculo_cruzo = 0;
 
-					// como le estoy dando paso a un auto, tengo que poner
-					// el semaforo opuesto en rojo si o si
-//					if(semaforo_a == 1)
-//					{
-//						semaforo_a = 0;
-//						LOGGER_INFO("Semaforo A en rojo");
-//					}
-//				}
-//			}
-//			xSemaphoreGive(h_mutex_mut_sem);
-//		}
-		/* Print out: Wait 2500mS */
-//		LOGGER_INFO(p_task_entry_b_wait_2500mS);
-//		vTaskDelay(TASK_ENTRY_B_DEL_MAX);
+	        // 2. evaluamos
+	        xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+	        {
+	            if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_b == 1)
+	            {
+	                g_tasks_cnt++;
+	                LOGGER_INFO("Vehiculo Circulando por B. Total en cruce: %lu", g_tasks_cnt);
+
+	                if (g_tasks_cnt == G_TASKS_CNT_MAX) {
+	                    semaforo_b = 0;
+	                    LOGGER_INFO("Semaforo B en rojo (Limite maximo alcanzado)");
+	                }
+
+	                if (semaforo_a == 1) {
+	                    semaforo_a = 0;
+	                    LOGGER_INFO("Semaforo A asegurado en rojo");
+	                }
+
+	                vehiculo_cruzo = 1;
+	                auto_en_espera = 0;
+	            }
+	        }
+	        xSemaphoreGive(h_mutex_mut_sem);
+
+	        // 3. bloqueamos
+	        if (!vehiculo_cruzo) {
+	            LOGGER_INFO("Entrada B bloqueada (lleno o rojo). Durmiendo tarea...");
+	            xSemaphoreTake(h_go_b_bin_sem, portMAX_DELAY);
+	        }
+	    }
 
 
-		xSemaphoreTake(h_entry_b_bin_sem, portMAX_DELAY);
-		    g_task_entry_b_cnt++;
 
-		    uint8_t vehiculo_cruzo = 0;
-		    while (!vehiculo_cruzo)
-		    {
-		        xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-		        {
-		            if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_b == 1)
-		            {
-		                g_tasks_cnt++;
-		                LOGGER_INFO("Vehiculo Circulando por B. Total en cruce: %lu", g_tasks_cnt);
 
-		                if (g_tasks_cnt == G_TASKS_CNT_MAX) {
-		                    semaforo_b = 0;
-		                    LOGGER_INFO("Semaforo B en rojo (Limite maximo alcanzado)");
-		                }
-		                if (semaforo_a == 1) {
-		                    semaforo_a = 0;
-		                    LOGGER_INFO("Semaforo A asegurado en rojo");
-		                }
-		                vehiculo_cruzo = 1;
-		            }
-		        }
-		        xSemaphoreGive(h_mutex_mut_sem);
 
-		        if (!vehiculo_cruzo) {
-		            vTaskDelay(pdMS_TO_TICKS(10));
-		        }
-		    }
-
-	}
 }
 
 /********************** end of file ******************************************/

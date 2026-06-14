@@ -65,86 +65,55 @@ uint32_t g_task_exit_a_cnt;
 /* Task thread */
 void task_exit_a(void *parameters)
 {
-	/*  Declare & Initialize Task Function variables */
-	g_task_exit_a_cnt = G_TASK_EXIT_A_CNT_INI;
+    /* Declarar e inicializar variables de la función de la tarea */
+    g_task_exit_a_cnt = G_TASK_EXIT_A_CNT_INI;
 
-	/* Print out: Task Initialized */
-	LOGGER_INFO(" ");
-	LOGGER_INFO("  %s is running - Tick [mS] = %lu", pcTaskGetName(NULL), xTaskGetTickCount());
+    LOGGER_INFO(" ");
+    LOGGER_INFO("  %s is running - Tick [mS] = %lu", pcTaskGetName(NULL), xTaskGetTickCount());
 
-	/* As per most tasks, this task is implemented in an infinite loop. */
-	for (;;)
-	{
-		/* Update Task Counter */
-//		g_task_exit_a_cnt++;
+    for (;;)
+    {
+        // 1 bloqueamos esperamos la señal del sensor de salida a
+        xSemaphoreTake(h_exit_a_bin_sem, portMAX_DELAY);
 
-//		xSemaphoreTake(h_exit_a_bin_sem, portMAX_DELAY);
-//		{
+        /* Update Task Counter */
+        g_task_exit_a_cnt++;
 
-//			xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-//			{
-//				if(g_tasks_cnt > 0) {
-//					LOGGER_INFO("Vehiculo saliendo de A");
-//					g_tasks_cnt--;
-//				}
-				// se libero el paso, pongo mi semaforo en verde, si es
-				// que esta en rojo
-//				if(semaforo_a == 0) {
-//					semaforo_a = 1;
-//					LOGGER_INFO("Semaforo A en verde");
-//				}
-				// si ya no hay mas transito por la via del lado a
-				// entonces libero semaforo_b
-//				if(g_tasks_cnt == 0) {
-//					semaforo_b = 1;
-//					LOGGER_INFO("Transito liberado. Semaforo B en verde");
-//				}
-//			}
-//			xSemaphoreGive(h_mutex_mut_sem);
-			/// despues de tomar el semaforo
-//		}
-    	/* Print out: Wait 2500mS */
-//		LOGGER_INFO(p_task_exit_a_wait_2500mS);
-//		vTaskDelay(TASK_EXIT_A_DEL_MAX);
+        // 2. Proteger el acceso al contador y semáforos globales bajo el Mutex
+        xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
+        {
+            if (g_tasks_cnt > 0)
+            {
+                g_tasks_cnt--;
+                LOGGER_INFO("Vehiculo saliendo de A. Total en cruce: %lu", g_tasks_cnt);
 
+                // contrl alternancia y desbloqueo
+                if (g_tasks_cnt == 0)
+                {
+                    // Si el cruce se vacía, los semafores deben de estar disponibles
+                    // El primer vehículo que llegue cuando el cruce esta vacio puede ingresar com,o prioritario
+                    semaforo_a = 1;
+                    semaforo_b = 1;
+                    LOGGER_INFO("Cruce vacio de forma segura. AMBOS semaforos en VERDE.");
 
-		xSemaphoreTake(h_exit_a_bin_sem, portMAX_DELAY);
+                    // ambas entradas de control disponibles por si había autos en espera
+                    xSemaphoreGive(h_go_a_bin_sem);
+                    xSemaphoreGive(h_go_b_bin_sem);
+                }
+                else if (g_tasks_cnt < G_TASKS_CNT_MAX)
+                {
+                    // Si aun quedan autos en el cruce pero se libera un lugar,permitimos el flujo
 
-		/* Update Task Counter */
-		g_task_exit_a_cnt++;
+                    semaforo_a = 1;
+                    LOGGER_INFO("Espacio liberado en el cruce. Semaforo A habilitado.");
 
-		// 2. Proteger el acceso al contador y semáforos globales bajo el Mutex
-		xSemaphoreTake(h_mutex_mut_sem, portMAX_DELAY);
-		{
-			if (g_tasks_cnt > 0)
-			{
-				g_tasks_cnt--;
-				LOGGER_INFO("Vehiculo saliendo de A. Total en cruce: %lu", g_tasks_cnt);
-
-				// CAMBIO LÓGICO CRÍTICO: Alternancia segura y excluyente
-				if (g_tasks_cnt == 0)
-				{
-					// Si el cruce quedó vacío, cerramos el paso de A y abrimos la vía opuesta B
-					semaforo_a = 0;
-					semaforo_b = 1;
-					LOGGER_INFO("Cruce vacio. Semaforo A -> ROJO, Semaforo B -> VERDE");
-					xSemaphoreGive(h_go_b_bin_sem);
-				}
-				else if (g_tasks_cnt < G_TASKS_CNT_MAX && semaforo_a == 0)
-				{
-					// Si aún quedan autos de la ráfaga A por salir pero hay espacio libre,
-					// mantenemos o reabrimos el semáforo A en verde.
-					semaforo_a = 1;
-					LOGGER_INFO("Semaforo A reabierto en VERDE");
-					xSemaphoreGive(h_go_a_bin_sem);
-				}
-			}
-		}
-		xSemaphoreGive(h_mutex_mut_sem);
-
-
-
-	}
+                    // para evaluar el paso en a
+                    xSemaphoreGive(h_go_a_bin_sem);
+                }
+            }
+        }
+        xSemaphoreGive(h_mutex_mut_sem);
+    }
 }
 
 /********************** end of file ******************************************/
